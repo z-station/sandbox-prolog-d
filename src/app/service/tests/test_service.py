@@ -616,6 +616,52 @@ def test_execute__term__ok():
     assert exec_result.error is None
 
 
+def test_execute__greater_than__ok():
+
+    # arrange
+    code = (
+        '?БОЛЬШЕ(Азат,Данил).'
+    )
+
+    # act
+    exec_result = PrologDService._execute(
+        code=code
+    )
+
+    # assert
+    assert exec_result.result == (
+        'НЕТ'
+    )
+    assert exec_result.error is None
+
+@pytest.mark.parametrize(
+    ('code', 'result'),
+    (
+        ('?ABS(-15, x).', 'x=15'),
+        ('?ABS(15, x).', 'x=15'),
+        ('?SQRT(9, x).', 'x=3'),
+        ('?SQRT(x, 9).', 'x=81'),
+        ('?SIN(1.57, x).', 'x=1.0'),
+        ('?SIN(x, 0.0).', 'x=0.0'),
+        ('?SIN(x, 1.0).', 'x=1.570796'),
+        ('?COS(0.0, x).', 'x=1.0'),
+        ('?COS(x, 1.0).', 'x=0.0'),
+        ('?COS(x, 0.0).', 'x=1.570796'),
+        ('?TAN(0.785, x).', 'x=0.999204'),
+        ('?TAN(x, 0.0).', 'x=0.0'),
+        ('?EXP(1., x).', 'x=2.718282'),
+        ('?EXP(x, 1.).', 'x=0.0'),
+    )
+)
+def test_execute__math__ok(code, result):
+
+    # act
+    exec_result = PrologDService._execute(code=code)
+
+    # assert
+    assert exec_result.result == result
+    assert exec_result.error is None
+
 def test_check__true__ok():
 
     # arrange
