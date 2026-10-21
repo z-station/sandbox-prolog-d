@@ -634,6 +634,95 @@ def test_execute__greater_than__ok():
     )
     assert exec_result.error is None
 
+
+def test_execute__findall_single_var__ok():
+
+    # arrange
+    code = (
+        'студент(вова, корчагин).\n'
+        'студент(данил, ахмеров).\n'
+        'студент(ваня, петров).\n'
+        '?НАЙТИВСЕ(И, студент(И, Ф), А).'
+    )
+
+    # act
+    exec_result = PrologDService._execute(
+        code=code
+    )
+
+    # assert
+    assert exec_result.result == (
+        'И=_1\n'
+        'Ф=_1\n'
+        'А=[вова,данил,ваня]'
+    )
+    assert exec_result.error is None
+
+
+def test_execute__findall_list_of_vars__ok():
+
+    # arrange
+    code = (
+        'студент(вова, корчагин).\n'
+        'студент(данил, ахмеров).\n'
+        'студент(ваня, петров).\n'
+        '?НАЙТИВСЕ([И, Ф], студент(И, Ф), А).'
+    )
+
+    # act
+    exec_result = PrologDService._execute(
+        code=code
+    )
+
+    # assert
+    assert exec_result.result == (
+        'И=_1\n'
+        'Ф=_1\n'
+        'А=[[вова,корчагин],[данил,ахмеров],[ваня,петров]]'
+    )
+    assert exec_result.error is None
+
+
+def test_execute__forall_false__ok():
+
+    # arrange
+    code = (
+        'человек(аня).\n'
+        'человек(боря).\n'
+        'совершеннолетний(аня).\n'
+        '?ДЛЯВСЕХ(человек(Х), совершеннолетний(Х)).'
+    )
+
+    # act
+    exec_result = PrologDService._execute(
+        code=code
+    )
+
+    # assert
+    assert exec_result.result == 'НЕТ'
+    assert exec_result.error is None
+
+
+def test_execute__forall_true__ok():
+
+    # arrange
+    code = (
+        'человек(аня).\n'
+        'человек(боря).\n'
+        'совершеннолетний(аня).\n'
+        '?ДЛЯВСЕХ(совершеннолетний(Х), человек(Х)).'
+    )
+
+    # act
+    exec_result = PrologDService._execute(
+        code=code
+    )
+
+    # assert
+    assert exec_result.result == 'Х=_1'
+    assert exec_result.error is None
+
+
 @pytest.mark.parametrize(
     ('code', 'result'),
     (
