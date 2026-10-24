@@ -723,6 +723,96 @@ def test_execute__forall_true__ok():
     assert exec_result.error is None
 
 
+def test_execute__greater_than_digits__longer_list__ok():
+
+    # arrange
+    code = '?БОЛЬШЕ([1, 2], [1]).'
+
+    # act
+    exec_result = PrologDService._execute(
+        code=code
+    )
+
+    # assert
+    assert exec_result.result == 'ДА'
+    assert exec_result.error is None
+
+
+def test_execute__greater_than_digits__less_element__ok():
+
+    # arrange
+    code = '?БОЛЬШЕ([1, 2], [1, 3]).'
+
+    # act
+    exec_result = PrologDService._execute(
+        code=code
+    )
+
+    # assert
+    assert exec_result.result == 'НЕТ'
+    assert exec_result.error is None
+
+
+def test_execute__greater_than_digits__greater_first_element__ok():
+
+    # arrange
+    code = '?БОЛЬШЕ([2, 2], [1, 3]).'
+
+    # act
+    exec_result = PrologDService._execute(
+        code=code
+    )
+
+    # assert
+    assert exec_result.result == 'ДА'
+    assert exec_result.error is None
+
+
+def test_execute__sorting_digits__ok():
+
+    # arrange
+    code = '?СОРТИРОВКА([3, 2, 1, 3], A).'
+
+    # act
+    exec_result = PrologDService._execute(
+        code=code
+    )
+
+    # assert
+    assert exec_result.result == 'A=[1,2,3]'
+    assert exec_result.error is None
+
+
+def test_execute__sorting_strings__ok():
+
+    # arrange
+    code = '?СОРТИРОВКА(["abc", "a", "abc", "qwe"], B).'
+
+    # act
+    exec_result = PrologDService._execute(
+        code=code
+    )
+
+    # assert
+    assert exec_result.result == 'B=[a,abc,qwe]'
+    assert exec_result.error is None
+
+
+def test_execute__sorting_lists__ok():
+
+    # arrange
+    code = '?СОРТИРОВКА([[1, 2],[1],[2, 2],[1, 3], [1]], C).'
+
+    # act
+    exec_result = PrologDService._execute(
+        code=code
+    )
+
+    # assert
+    assert exec_result.result == 'C=[[1],[1,2],[1,3],[2,2]]'
+    assert exec_result.error is None
+
+
 @pytest.mark.parametrize(
     ('code', 'result'),
     (
