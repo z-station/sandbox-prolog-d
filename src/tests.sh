@@ -1,2 +1,2 @@
 #!/bin/bash
-pytest -vv -p no:cacheprovider
+PYTHONPATH=. pytest -vv -p no:cacheprovider

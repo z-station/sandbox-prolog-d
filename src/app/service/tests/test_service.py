@@ -872,7 +872,7 @@ def test_check__checker_func__invalid_syntax__raise_exception():
 
     # assert
     assert ex.value.message == messages.MSG_5
-    assert ex.value.details == 'invalid syntax (<string>, line 1)'
+    assert ex.value.details == 'invalid syntax. Perhaps you forgot a comma? (<string>, line 1)'
 
 
 def test_debug__ok(mocker):

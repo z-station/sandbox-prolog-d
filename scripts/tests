@@ -1,2 +1,2 @@
 #!/bin/bash
-docker exec -it sandbox-prolog-d pytest -vv -p no:cacheprovider /app/src
+docker exec -it sandbox-prolog-d bash -c "cd /app/src && PYTHONPATH=/app/src pytest -vv -p no:cacheprovider"

@@ -1,7 +1,7 @@
 from app.utils import clean_str
 
 
-def test_clean_str__first_new_line__not_remove(client):
+def test_clean_str__first_new_line__not_remove():
 
     # arrange
     value = (
@@ -21,7 +21,7 @@ def test_clean_str__first_new_line__not_remove(client):
     )
 
 
-def test_clean_str__last_new_line__remove(client):
+def test_clean_str__last_new_line__remove():
 
     # arrange
     value = (
@@ -41,7 +41,7 @@ def test_clean_str__last_new_line__remove(client):
     )
 
 
-def test_clean_str__char_carriage_return__remove(client):
+def test_clean_str__char_carriage_return__remove():
 
     # arrange
     value = (

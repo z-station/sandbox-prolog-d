@@ -3,10 +3,11 @@ from app.entities import (
     TestsData,
     TestData
 )
+from app.schema import VALIDATION_ERROR
 from app.service.exceptions import ServiceException
 
 
-def test_debug__ok(client, mocker):
+def test_debug__ok(api_client, mocker):
 
     # arrange
     request_data = {
@@ -28,16 +29,16 @@ def test_debug__ok(client, mocker):
     )
 
     # act
-    response = client.post('/debug/', json=request_data)
+    response = api_client.post('/debug/', json=request_data)
 
     # assert
     assert response.status_code == 200
-    assert response.json['result'] == debug_result.result
-    assert response.json['error'] == debug_result.error
+    assert response.json()['result'] == debug_result.result
+    assert response.json()['error'] == debug_result.error
     debug_mock.assert_called_once_with(serialized_data)
 
 
-def test_debug__not_error__ok(client, mocker):
+def test_debug__not_error__ok(api_client, mocker):
 
     # arrange
     request_data = {
@@ -59,16 +60,16 @@ def test_debug__not_error__ok(client, mocker):
     )
 
     # act
-    response = client.post('/debug/', json=request_data)
+    response = api_client.post('/debug/', json=request_data)
 
     # assert
     assert response.status_code == 200
-    assert response.json['result'] == debug_result.result
-    assert response.json['error'] is None
+    assert response.json()['result'] == debug_result.result
+    assert response.json()['error'] is None
     debug_mock.assert_called_once_with(serialized_data)
 
 
-def test_debug__not_result__ok(client, mocker):
+def test_debug__not_result__ok(api_client, mocker):
 
     # arrange
     request_data = {
@@ -90,16 +91,16 @@ def test_debug__not_result__ok(client, mocker):
     )
 
     # act
-    response = client.post('/debug/', json=request_data)
+    response = api_client.post('/debug/', json=request_data)
 
     # assert
     assert response.status_code == 200
-    assert response.json['result'] is None
-    assert response.json['error'] == debug_result.error
+    assert response.json()['result'] is None
+    assert response.json()['error'] == debug_result.error
     debug_mock.assert_called_once_with(serialized_data)
 
 
-def test_debug__service_exception__internal_error(client, mocker):
+def test_debug__service_exception__internal_error(api_client, mocker):
 
     # arrange
     request_data = {
@@ -117,15 +118,15 @@ def test_debug__service_exception__internal_error(client, mocker):
     )
 
     # act
-    response = client.post('/debug/', json=request_data)
+    response = api_client.post('/debug/', json=request_data)
 
     # assert
     assert response.status_code == 500
-    assert response.json['error'] == service_ex.message
-    assert response.json['details'] == service_ex.details
+    assert response.json()['error'] == service_ex.message
+    assert response.json()['details'] == service_ex.details
 
 
-def test_debug__validation_error__bad_request(client, mocker):
+def test_debug__validation_error__bad_request(api_client, mocker):
 
     # arrange
     request_data = {
@@ -134,18 +135,18 @@ def test_debug__validation_error__bad_request(client, mocker):
     service_mock = mocker.patch('app.service.main.PrologDService.debug')
 
     # act
-    response = client.post('/debug/', json=request_data)
+    response = api_client.post('/debug/', json=request_data)
 
     # assert
     assert response.status_code == 400
-    assert response.json['error'] == 'Validation error'
-    assert response.json['details'] == {
+    assert response.json()['error'] == VALIDATION_ERROR
+    assert response.json()['details'] == {
         'code': ['Missing data for required field.']
     }
     service_mock.assert_not_called()
 
 
-def test_testing__ok(client, mocker):
+def test_testing__ok(api_client, mocker):
 
     # arrange
     request_data = {
@@ -178,9 +179,6 @@ def test_testing__ok(client, mocker):
         ]
     )
     testing_result = TestsData(
-        ok=True,
-        num=2,
-        num_ok=2,
         tests=[
             TestData(
                 result='some result 1',
@@ -200,23 +198,23 @@ def test_testing__ok(client, mocker):
     )
 
     # act
-    response = client.post('/testing/', json=request_data)
+    response = api_client.post('/testing/', json=request_data)
 
     # assert
     assert response.status_code == 200
-    assert response.json['ok'] == testing_result.ok
-    assert response.json['num'] == testing_result.num
-    assert response.json['num_ok'] == testing_result.num_ok
-    assert response.json['tests'][0]['result'] == 'some result 1'
-    assert response.json['tests'][0]['error'] == 'some error 1'
-    assert response.json['tests'][0]['ok'] is True
-    assert response.json['tests'][1]['result'] == 'some result 2'
-    assert response.json['tests'][1]['error'] == 'some error 2'
-    assert response.json['tests'][1]['ok'] is False
+    assert response.json()['ok'] is False
+    assert response.json()['num'] == 2
+    assert response.json()['num_ok'] == 1
+    assert response.json()['tests'][0]['result'] == 'some result 1'
+    assert response.json()['tests'][0]['error'] == 'some error 1'
+    assert response.json()['tests'][0]['ok'] is True
+    assert response.json()['tests'][1]['result'] == 'some result 2'
+    assert response.json()['tests'][1]['error'] == 'some error 2'
+    assert response.json()['tests'][1]['ok'] is False
     testing_mock.assert_called_once_with(serialized_data)
 
 
-def test_testing__not_test_result__ok(client, mocker):
+def test_testing__not_test_result__ok(api_client, mocker):
 
     # arrange
     request_data = {
@@ -241,9 +239,6 @@ def test_testing__not_test_result__ok(client, mocker):
         ]
     )
     testing_result = TestsData(
-        ok=True,
-        num=1,
-        num_ok=0,
         tests=[
             TestData(
                 result=None,
@@ -258,20 +253,20 @@ def test_testing__not_test_result__ok(client, mocker):
     )
 
     # act
-    response = client.post('/testing/', json=request_data)
+    response = api_client.post('/testing/', json=request_data)
 
     # assert
     assert response.status_code == 200
-    assert response.json['ok'] == testing_result.ok
-    assert response.json['num'] == testing_result.num
-    assert response.json['num_ok'] == testing_result.num_ok
-    assert response.json['tests'][0]['result'] is None
-    assert response.json['tests'][0]['error'] == 'some error 1'
-    assert response.json['tests'][0]['ok'] is False
+    assert response.json()['ok'] is False
+    assert response.json()['num'] == 1
+    assert response.json()['num_ok'] == 0
+    assert response.json()['tests'][0]['result'] is None
+    assert response.json()['tests'][0]['error'] == 'some error 1'
+    assert response.json()['tests'][0]['ok'] is False
     testing_mock.assert_called_once_with(serialized_data)
 
 
-def test_testing__not_test_error__ok(client, mocker):
+def test_testing__not_test_error__ok(api_client, mocker):
 
     # arrange
     request_data = {
@@ -296,9 +291,6 @@ def test_testing__not_test_error__ok(client, mocker):
         ]
     )
     testing_result = TestsData(
-        ok=True,
-        num=1,
-        num_ok=1,
         tests=[
             TestData(
                 result='some result',
@@ -313,20 +305,20 @@ def test_testing__not_test_error__ok(client, mocker):
     )
 
     # act
-    response = client.post('/testing/', json=request_data)
+    response = api_client.post('/testing/', json=request_data)
 
     # assert
     assert response.status_code == 200
-    assert response.json['ok'] == testing_result.ok
-    assert response.json['num'] == testing_result.num
-    assert response.json['num_ok'] == testing_result.num_ok
-    assert response.json['tests'][0]['result'] == 'some result'
-    assert response.json['tests'][0]['error'] is None
-    assert response.json['tests'][0]['ok'] is True
+    assert response.json()['ok'] is True
+    assert response.json()['num'] == 1
+    assert response.json()['num_ok'] == 1
+    assert response.json()['tests'][0]['result'] == 'some result'
+    assert response.json()['tests'][0]['error'] is None
+    assert response.json()['tests'][0]['ok'] is True
     testing_mock.assert_called_once_with(serialized_data)
 
 
-def test_testing__service_exception__internal_error(client, mocker):
+def test_testing__service_exception__internal_error(api_client, mocker):
 
     # arrange
     request_data = {
@@ -354,15 +346,15 @@ def test_testing__service_exception__internal_error(client, mocker):
     )
 
     # act
-    response = client.post('/testing/', json=request_data)
+    response = api_client.post('/testing/', json=request_data)
 
     # assert
     assert response.status_code == 500
-    assert response.json['error'] == service_ex.message
-    assert response.json['details'] == service_ex.details
+    assert response.json()['error'] == service_ex.message
+    assert response.json()['details'] == service_ex.details
 
 
-def test_testing__validation_error__bad_request(client, mocker):
+def test_testing__validation_error__bad_request(api_client, mocker):
 
     # arrange
     request_data = {
@@ -378,12 +370,12 @@ def test_testing__validation_error__bad_request(client, mocker):
     service_mock = mocker.patch('app.service.main.PrologDService.testing')
 
     # act
-    response = client.post('/testing/', json=request_data)
+    response = api_client.post('/testing/', json=request_data)
 
     # assert
     assert response.status_code == 400
-    assert response.json['error'] == 'Validation error'
-    assert response.json['details'] == {
+    assert response.json()['error'] == VALIDATION_ERROR
+    assert response.json()['details'] == {
         'checker': ['Missing data for required field.']
     }
     service_mock.assert_not_called()
